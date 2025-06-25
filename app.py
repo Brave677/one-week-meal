@@ -25,6 +25,42 @@ if "menu" not in st.session_state:
         {"day": day, "breakfast": "", "lunch": "", "dinner": ""} for day in DAYS
     ]
 
+# 冷蔵庫の食材データ
+if "fridge_ingredients" not in st.session_state:
+    st.session_state.fridge_ingredients = {}
+
+st.header("冷蔵庫の食材管理")
+
+# 食材追加
+col1, col2, col3 = st.columns(3)
+with col1:
+    new_ingredient = st.text_input("食材名")
+with col2:
+    new_quantity = st.number_input("数量", min_value=1, value=1)
+with col3:
+    if st.button("食材を追加"):
+        if new_ingredient:
+            st.session_state.fridge_ingredients[new_ingredient] = new_quantity
+            st.success(f"{new_ingredient}を{new_quantity}個追加しました")
+
+# 冷蔵庫の食材一覧と削除
+st.subheader("現在の冷蔵庫の食材")
+if st.session_state.fridge_ingredients:
+    for ingredient, quantity in st.session_state.fridge_ingredients.items():
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            st.write(f"• {ingredient}: {quantity}個")
+        with col2:
+            if st.button(f"削除", key=f"delete_{ingredient}"):
+                del st.session_state.fridge_ingredients[ingredient]
+                st.rerun()
+        with col3:
+            new_qty = st.number_input(f"数量変更", min_value=0, value=quantity, key=f"qty_{ingredient}")
+            if new_qty != quantity:
+                st.session_state.fridge_ingredients[ingredient] = new_qty
+else:
+    st.write("冷蔵庫に食材が登録されていません")
+
 st.header("献立を入力してください")
 
 for i, day in enumerate(DAYS):
@@ -59,9 +95,24 @@ if st.button("買い物リストを生成"):
         ingredient_count[ingredient] = ingredient_count.get(ingredient, 0) + 1
     
     if ingredient_count:
-        st.subheader("必要な材料")
-        for ingredient, count in ingredient_count.items():
-            st.write(f"• {ingredient}: {count}個")
+        st.subheader("必要な材料（冷蔵庫の食材を考慮）")
+        
+        # 冷蔵庫の食材を考慮した買い物リスト
+        shopping_list = {}
+        for ingredient, needed_count in ingredient_count.items():
+            fridge_count = st.session_state.fridge_ingredients.get(ingredient, 0)
+            remaining = needed_count - fridge_count
+            if remaining > 0:
+                shopping_list[ingredient] = remaining
+            elif remaining < 0:
+                st.info(f"✓ {ingredient}: 冷蔵庫に{fridge_count}個あり、{needed_count}個必要（余裕: {abs(remaining)}個）")
+        
+        if shopping_list:
+            st.write("**買い物が必要な食材:**")
+            for ingredient, count in shopping_list.items():
+                st.write(f"• {ingredient}: {count}個")
+        else:
+            st.success("🎉 冷蔵庫の食材で全ての献立が作れます！")
     else:
         st.warning("献立が入力されていないか、定義されていないメニューです。")
 
