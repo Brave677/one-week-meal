@@ -1,4 +1,5 @@
 import streamlit as st
+import random
 
 st.title("1週間の献立管理アプリ")
 
@@ -16,7 +17,12 @@ MENU_INGREDIENTS = {
     "オムライス": ["米", "卵", "ケチャップ", "チキン"],
     "うどん": ["うどん", "だし", "ねぎ", "天ぷら"],
     "丼物": ["米", "肉", "玉ねぎ", "卵"],
-    "スープ": ["野菜", "だし", "塩", "こしょう"]
+    "スープ": ["野菜", "だし", "塩", "こしょう"],
+    "炒飯": ["米", "卵", "玉ねぎ", "にんじん"],
+    "焼肉": ["肉", "レタス", "にんにく"],
+    "天ぷら": ["魚", "天ぷら粉", "油"],
+    "親子丼": ["米", "鶏肉", "卵", "玉ねぎ"],
+    "麻婆豆腐": ["豆腐", "ひき肉", "にんにく", "豆板醤"]
 }
 
 # 初期値の献立データ
@@ -60,6 +66,73 @@ if st.session_state.fridge_ingredients:
                 st.session_state.fridge_ingredients[ingredient] = new_qty
 else:
     st.write("冷蔵庫に食材が登録されていません")
+
+# 冷蔵庫の食材から献立作成機能
+st.header("冷蔵庫の食材から献立作成")
+
+def can_make_menu(menu_ingredients, fridge_ingredients):
+    """冷蔵庫の食材でメニューが作れるかチェック"""
+    for ingredient in menu_ingredients:
+        if ingredient not in fridge_ingredients or fridge_ingredients[ingredient] <= 0:
+            return False
+    return True
+
+def get_available_menus(fridge_ingredients):
+    """冷蔵庫の食材で作れるメニューを取得"""
+    available_menus = []
+    for menu, ingredients in MENU_INGREDIENTS.items():
+        if can_make_menu(ingredients, fridge_ingredients):
+            available_menus.append(menu)
+    return available_menus
+
+# 作れるメニューの表示
+if st.session_state.fridge_ingredients:
+    available_menus = get_available_menus(st.session_state.fridge_ingredients)
+    
+    if available_menus:
+        st.subheader("冷蔵庫の食材で作れるメニュー")
+        for menu in available_menus:
+            st.write(f"• {menu}")
+        
+        # 自動献立生成
+        st.subheader("自動献立生成")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("1週間分の献立を自動生成"):
+                # 冷蔵庫の食材をコピー（消費量を管理するため）
+                temp_fridge = st.session_state.fridge_ingredients.copy()
+                new_menu = []
+                
+                for day in DAYS:
+                    day_menu = {"day": day, "breakfast": "", "lunch": "", "dinner": ""}
+                    
+                    # 各食事で作れるメニューをランダムに選択
+                    for meal_type in ["breakfast", "lunch", "dinner"]:
+                        available = get_available_menus(temp_fridge)
+                        if available:
+                            selected_menu = random.choice(available)
+                            day_menu[meal_type] = selected_menu
+                            
+                            # 食材を消費
+                            for ingredient in MENU_INGREDIENTS[selected_menu]:
+                                temp_fridge[ingredient] -= 1
+                    
+                    new_menu.append(day_menu)
+                
+                st.session_state.menu = new_menu
+                st.success("1週間分の献立を自動生成しました！")
+        
+        with col2:
+            if st.button("献立をクリア"):
+                st.session_state.menu = [
+                    {"day": day, "breakfast": "", "lunch": "", "dinner": ""} for day in DAYS
+                ]
+                st.success("献立をクリアしました")
+    else:
+        st.warning("冷蔵庫の食材では作れるメニューがありません。")
+else:
+    st.info("冷蔵庫に食材を登録すると、自動で献立を作成できます。")
 
 st.header("献立を入力してください")
 
