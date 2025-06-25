@@ -1,7 +1,27 @@
 import streamlit as st
 import random
+import openai
+import json
 
 st.title("1週間の献立管理アプリ")
+
+# OpenAI API設定
+if "openai_api_key" not in st.session_state:
+    st.session_state.openai_api_key = ""
+
+# サイドバーでAPIキー設定
+with st.sidebar:
+    st.header("OpenAI API設定")
+    api_key = st.text_input("OpenAI API Key", type="password", value=st.session_state.openai_api_key)
+    if api_key != st.session_state.openai_api_key:
+        st.session_state.openai_api_key = api_key
+        if api_key:
+            st.success("APIキーを設定しました")
+    
+    if st.session_state.openai_api_key:
+        st.success("✅ APIキーが設定されています")
+    else:
+        st.warning("⚠️ APIキーを設定してください")
 
 # 曜日リスト
 DAYS = ["月", "火", "水", "木", "金", "土", "日"]
@@ -157,6 +177,95 @@ if st.session_state.fridge_ingredients:
 else:
     st.write("冷蔵庫に食材が登録されていません")
 
+# AI献立生成機能
+st.header("AI献立生成")
+
+def generate_ai_menu():
+    """OpenAI APIを使って献立を生成"""
+    if not st.session_state.openai_api_key:
+        st.error("OpenAI APIキーが設定されていません")
+        return None
+    
+    try:
+        openai.api_key = st.session_state.openai_api_key
+        
+        # プロンプトの作成
+        prompt = f"""
+以下の条件に基づいて1週間分の献立（朝食・昼食・夕食）を提案してください。
+
+【冷蔵庫にある食材】
+{', '.join([f"{ingredient}({quantity}個)" for ingredient, quantity in st.session_state.fridge_ingredients.items()]) if st.session_state.fridge_ingredients else "なし"}
+
+【条件】
+- 1日の最大カロリー: {st.session_state.menu_conditions['max_calories']}kcal
+- 最大調理時間: {st.session_state.menu_conditions['max_cook_time']}分
+- 好みのジャンル: {', '.join(st.session_state.menu_conditions['preferred_genres']) if st.session_state.menu_conditions['preferred_genres'] else '指定なし'}
+- アレルギー: {', '.join(st.session_state.menu_conditions['allergies']) if st.session_state.menu_conditions['allergies'] else 'なし'}
+- 避けたい食材: {', '.join(st.session_state.menu_conditions['avoid_ingredients']) if st.session_state.menu_conditions['avoid_ingredients'] else 'なし'}
+
+【出力形式】
+以下のJSON形式で出力してください：
+{{
+    "menu": [
+        {{
+            "day": "月",
+            "breakfast": "メニュー名",
+            "lunch": "メニュー名", 
+            "dinner": "メニュー名"
+        }},
+        ...
+    ]
+}}
+
+冷蔵庫の食材を優先的に使用し、栄養バランスを考慮した献立を提案してください。
+"""
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "あなたは栄養士で料理の専門家です。与えられた条件に基づいて最適な献立を提案してください。"},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+        
+        # レスポンスからJSONを抽出
+        content = response.choices[0].message.content
+        # JSON部分を抽出（```json と ``` の間）
+        if "```json" in content:
+            json_start = content.find("```json") + 7
+            json_end = content.find("```", json_start)
+            json_str = content[json_start:json_end].strip()
+        else:
+            # JSON部分を直接探す
+            json_start = content.find("{")
+            json_end = content.rfind("}") + 1
+            json_str = content[json_start:json_end]
+        
+        menu_data = json.loads(json_str)
+        return menu_data["menu"]
+        
+    except Exception as e:
+        st.error(f"AI献立生成でエラーが発生しました: {str(e)}")
+        return None
+
+# AI献立生成ボタン
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("AIで献立を生成", disabled=not st.session_state.openai_api_key):
+        with st.spinner("AIが献立を生成中..."):
+            ai_menu = generate_ai_menu()
+            if ai_menu:
+                st.session_state.menu = ai_menu
+                st.success("AIが献立を生成しました！")
+
+with col2:
+    if st.button("献立をクリア"):
+        st.session_state.menu = [
+            {"day": day, "breakfast": "", "lunch": "", "dinner": ""} for day in DAYS
+        ]
+        st.success("献立をクリアしました")
+
 # 冷蔵庫の食材から献立作成機能
 st.header("冷蔵庫の食材から献立作成")
 
@@ -215,49 +324,39 @@ if st.session_state.fridge_ingredients:
         
         # 自動献立生成
         st.subheader("条件付き自動献立生成")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if st.button("条件付きで1週間分の献立を自動生成"):
-                # 冷蔵庫の食材をコピー（消費量を管理するため）
-                temp_fridge = st.session_state.fridge_ingredients.copy()
-                new_menu = []
+        if st.button("条件付きで1週間分の献立を自動生成"):
+            # 冷蔵庫の食材をコピー（消費量を管理するため）
+            temp_fridge = st.session_state.fridge_ingredients.copy()
+            new_menu = []
+            
+            for day in DAYS:
+                day_menu = {"day": day, "breakfast": "", "lunch": "", "dinner": ""}
+                day_calories = 0
                 
-                for day in DAYS:
-                    day_menu = {"day": day, "breakfast": "", "lunch": "", "dinner": ""}
-                    day_calories = 0
-                    
-                    # 各食事で作れるメニューをランダムに選択
-                    for meal_type in ["breakfast", "lunch", "dinner"]:
-                        available = get_available_menus(temp_fridge, st.session_state.menu_conditions)
-                        if available:
-                            # カロリー制限を考慮してメニューを選択
-                            suitable_menus = []
-                            for menu in available:
-                                remaining_calories = st.session_state.menu_conditions["max_calories"] - day_calories
-                                if MENU_DETAILS[menu]["calories"] <= remaining_calories:
-                                    suitable_menus.append(menu)
+                # 各食事で作れるメニューをランダムに選択
+                for meal_type in ["breakfast", "lunch", "dinner"]:
+                    available = get_available_menus(temp_fridge, st.session_state.menu_conditions)
+                    if available:
+                        # カロリー制限を考慮してメニューを選択
+                        suitable_menus = []
+                        for menu in available:
+                            remaining_calories = st.session_state.menu_conditions["max_calories"] - day_calories
+                            if MENU_DETAILS[menu]["calories"] <= remaining_calories:
+                                suitable_menus.append(menu)
+                        
+                        if suitable_menus:
+                            selected_menu = random.choice(suitable_menus)
+                            day_menu[meal_type] = selected_menu
+                            day_calories += MENU_DETAILS[selected_menu]["calories"]
                             
-                            if suitable_menus:
-                                selected_menu = random.choice(suitable_menus)
-                                day_menu[meal_type] = selected_menu
-                                day_calories += MENU_DETAILS[selected_menu]["calories"]
-                                
-                                # 食材を消費
-                                for ingredient in MENU_INGREDIENTS[selected_menu]:
-                                    temp_fridge[ingredient] -= 1
-                    
-                    new_menu.append(day_menu)
+                            # 食材を消費
+                            for ingredient in MENU_INGREDIENTS[selected_menu]:
+                                temp_fridge[ingredient] -= 1
                 
-                st.session_state.menu = new_menu
-                st.success("条件付きで1週間分の献立を自動生成しました！")
-        
-        with col2:
-            if st.button("献立をクリア"):
-                st.session_state.menu = [
-                    {"day": day, "breakfast": "", "lunch": "", "dinner": ""} for day in DAYS
-                ]
-                st.success("献立をクリアしました")
+                new_menu.append(day_menu)
+            
+            st.session_state.menu = new_menu
+            st.success("条件付きで1週間分の献立を自動生成しました！")
     else:
         st.warning("冷蔵庫の食材と条件では作れるメニューがありません。")
 else:
