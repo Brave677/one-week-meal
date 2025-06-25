@@ -3,7 +3,7 @@ import random
 import openai
 import json
 
-st.title("1週間の献立管理アプリ")
+st.title("One-week-meal")
 
 # OpenAI API設定
 if "openai_api_key" not in st.session_state:
@@ -200,12 +200,12 @@ def generate_ai_menu():
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[
+            messages=[ 
                 {"role": "system", "content": "あなたは栄養士で料理の専門家です。与えられた条件に基づいて最適な献立を提案してください。"},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7
-        )
+         temperature=0.7
+          )
         
         # レスポンスからJSONを抽出
         content = response.choices[0].message.content
