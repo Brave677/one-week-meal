@@ -73,77 +73,81 @@ if "menu_conditions" not in st.session_state:
 # サイドバーでAPIキー設定
 with st.sidebar:
     st.header("設定")
-    st.subheader("OpenAI API設定")
-    api_key = st.text_input("OpenAI API Key", type="password", value=st.session_state.openai_api_key)
-    if api_key != st.session_state.openai_api_key:
-        st.session_state.openai_api_key = api_key
-        if api_key:
-            st.success("APIキーを設定しました")
     
-    if st.session_state.openai_api_key:
-        st.success("✅ APIキーが設定されています")
-    else:
-        st.warning("⚠️ APIキーを設定してください")
+    with st.expander("OpenAI API設定"):
+        st.subheader("OpenAI API設定")
+        api_key = st.text_input("OpenAI API Key", type="password", value=st.session_state.openai_api_key)
+        if api_key != st.session_state.openai_api_key:
+            st.session_state.openai_api_key = api_key
+            if api_key:
+                st.success("APIキーを設定しました")
+        
+        if st.session_state.openai_api_key:
+            st.success("✅ APIキーが設定されています")
+        else:
+            st.warning("⚠️ APIキーを設定してください")
 
-    st.subheader("献立条件設定")
-    # 条件設定フォーム
-    max_calories = st.number_input("1日の最大カロリー", min_value=500, max_value=5000, value=st.session_state.menu_conditions["max_calories"])
-    max_cook_time = st.number_input("最大調理時間（分）", min_value=5, max_value=180, value=st.session_state.menu_conditions["max_cook_time"])
-    
-    # 好みのジャンル
-    all_genres = list(set([details["genre"] for details in MENU_DETAILS.values()]))
-    preferred_genres = st.multiselect(
-        "好みの料理ジャンル",
-        all_genres,
-        default=st.session_state.menu_conditions["preferred_genres"]
-    )
-    
-    # アレルギー
-    all_allergens = []
-    for details in MENU_DETAILS.values():
-        all_allergens.extend(details["allergens"])
-    all_allergens = list(set(all_allergens))
-    
-    allergies = st.multiselect(
-        "アレルギー",
-        all_allergens,
-        default=st.session_state.menu_conditions["allergies"]
-    )
+    with st.expander("献立条件設定"):
+        st.subheader("献立条件設定")
+        # 条件設定フォーム
+        max_calories = st.number_input("1日の最大カロリー", min_value=500, max_value=5000, value=st.session_state.menu_conditions["max_calories"])
+        max_cook_time = st.number_input("最大調理時間（分）", min_value=5, max_value=180, value=st.session_state.menu_conditions["max_cook_time"])
+        
+        # 好みのジャンル
+        all_genres = list(set([details["genre"] for details in MENU_DETAILS.values()]))
+        preferred_genres = st.multiselect(
+            "好みの料理ジャンル",
+            all_genres,
+            default=st.session_state.menu_conditions["preferred_genres"]
+        )
+        
+        # アレルギー
+        all_allergens = []
+        for details in MENU_DETAILS.values():
+            all_allergens.extend(details["allergens"])
+        all_allergens = list(set(all_allergens))
+        
+        allergies = st.multiselect(
+            "アレルギー",
+            all_allergens,
+            default=st.session_state.menu_conditions["allergies"]
+        )
 
-    # 避けたい食材
-    avoid_ingredients = st.multiselect(
-        "避けたい食材",
-        ["肉", "魚", "卵", "乳製品", "小麦", "大豆"],
-        default=st.session_state.menu_conditions["avoid_ingredients"]
-    )
-    
-    # 条件保存
-    if st.button("条件を保存"):
-        st.session_state.menu_conditions = {
-            "max_calories": max_calories,
-            "max_cook_time": max_cook_time,
-            "preferred_genres": preferred_genres,
-            "allergies": allergies,
-            "avoid_ingredients": avoid_ingredients
-        }
-        st.success("献立条件を保存しました")
+        # 避けたい食材
+        avoid_ingredients = st.multiselect(
+            "避けたい食材",
+            ["肉", "魚", "卵", "乳製品", "小麦", "大豆"],
+            default=st.session_state.menu_conditions["avoid_ingredients"]
+        )
+        
+        # 条件保存
+        if st.button("条件を保存"):
+            st.session_state.menu_conditions = {
+                "max_calories": max_calories,
+                "max_cook_time": max_cook_time,
+                "preferred_genres": preferred_genres,
+                "allergies": allergies,
+                "avoid_ingredients": avoid_ingredients
+            }
+            st.success("献立条件を保存しました")
 
-    st.subheader("冷蔵庫の食材管理")
-    # 食材追加
-    new_ingredient = st.text_input("食材名")
-    new_quantity = st.number_input("数量", min_value=1, value=1)
-    if st.button("食材を追加"):
-        if new_ingredient:
-            st.session_state.fridge_ingredients[new_ingredient] = new_quantity
-            st.success(f"{new_ingredient}を{new_quantity}個追加しました")
+    with st.expander("冷蔵庫の食材管理"):
+        st.subheader("冷蔵庫の食材管理")
+        # 食材追加
+        new_ingredient = st.text_input("食材名")
+        new_quantity = st.number_input("数量", min_value=1, value=1)
+        if st.button("食材を追加"):
+            if new_ingredient:
+                st.session_state.fridge_ingredients[new_ingredient] = new_quantity
+                st.success(f"{new_ingredient}を{new_quantity}個追加しました")
 
-    # 冷蔵庫の食材一覧と削除
-    if st.session_state.fridge_ingredients:
-        for ingredient, quantity in st.session_state.fridge_ingredients.items():
-            st.write(f"• {ingredient}: {quantity}個")
-            if st.button(f"削除 {ingredient}", key=f"delete_{ingredient}"):
-                del st.session_state.fridge_ingredients[ingredient]
-                st.rerun()
+        # 冷蔵庫の食材一覧と削除
+        if st.session_state.fridge_ingredients:
+            for ingredient, quantity in st.session_state.fridge_ingredients.items():
+                st.write(f"• {ingredient}: {quantity}個")
+                if st.button(f"削除 {ingredient}", key=f"delete_{ingredient}"):
+                    del st.session_state.fridge_ingredients[ingredient]
+                    st.rerun()
 
 # 現在の条件表示
 st.subheader("現在の条件")
@@ -209,6 +213,10 @@ def generate_ai_menu():
         
         # レスポンスからJSONを抽出
         content = response.choices[0].message.content
+        if content is None:
+            st.error("AIからのレスポンスがありませんでした。再試行してください。")
+            return None
+        
         # JSON部分を抽出（```json と ``` の間）
         if "```json" in content:
             json_start = content.find("```json") + 7
