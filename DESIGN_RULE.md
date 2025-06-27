@@ -1,0 +1,73 @@
+カラーシステム
+メインカラー（プライマリカラー）: グリーン (bg-green-500, text-green-500) - 自然や健康をイメージ。
+サブカラー: オレンジ (bg-orange-500, text-orange-500) - 活力と温かみを演出。
+アクセントカラー: ライトグリーン (bg-green-300, text-green-300) - 柔らかさを追加。
+背景色: ホワイト (bg-white) - 清潔感を強調。
+テキストカラー: ダークグレー (text-gray-800) - 読みやすさを確保。
+タイポグラフィ
+フォントファミリー: font-sans - シンプルで読みやすい。
+見出し: text-2xl font-bold - 重要な情報を強調。
+本文: text-base - 標準的な読みやすさ。
+小さなテキスト: text-sm - 補足情報に使用。
+余白・間隔
+コンテナの余白: p-4 - 全体的に余裕を持たせる。
+要素間の間隔: space-y-4 - 縦方向の要素間に適用。
+角丸
+ボタンやカード: rounded-lg - 親しみやすさを演出。
+影の効果
+カードやモーダル: shadow-md - 軽い影で浮き上がらせる。
+ボタンやカードなどのコンポーネント設計
+ボタン: bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 - ホバー時に色が変わる。
+カード: bg-white shadow-md rounded-lg p-4 - 情報を整理して表示。
+アクセシビリティ配慮
+コントラスト: テキストと背景のコントラストを十分に確保（WCAG基準に準拠）。
+フォーカス状態: focus:outline-none focus:ring-2 focus:ring-green-500 - キーボード操作時にフォーカスがわかりやすい。
+代替テキスト: 画像には必ずalt属性を設定。
+
+ライトモード
+背景色: ホワイト (bg-white)
+テキストカラー: ダークグレー (text-gray-800)
+ボタン: bg-green-500 text-white hover:bg-green-600
+カード: bg-white shadow-md
+アクセントカラー: ライトグリーン (bg-green-300)
+ダークモード
+背景色: ダークグレー (bg-gray-900)
+テキストカラー: ライトグレー (text-gray-100)
+ボタン: bg-green-400 text-gray-900 hover:bg-green-500
+カード: bg-gray-800 shadow-lg
+アクセントカラー: ダークグリーン (bg-green-700)
+共通のデザインルール
+フォントファミリー: font-sans
+見出し: text-2xl font-bold
+本文: text-base
+小さなテキスト: text-sm
+余白・間隔: p-4, space-y-4
+角丸: rounded-lg
+影の効果: shadow-md（ダークモードではshadow-lg）
+アクセシビリティ配慮
+コントラスト: 各モードでテキストと背景のコントラストを十分に確保（WCAG基準に準拠）
+フォーカス状態: focus:outline-none focus:ring-2 focus:ring-green-500
+代替テキスト: 画像には必ずalt属性を設定
+
+レスポンシブデザインルール
+グリッドとレイアウト
+コンテナ: container mx-auto - 中央揃えで最大幅を設定。
+グリッドシステム: grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 - 画面サイズに応じてカラム数を変更。
+テキストとフォントサイズ
+見出し: text-xl md:text-2xl lg:text-3xl - 画面サイズに応じてフォントサイズを調整。
+本文: text-sm md:text-base lg:text-lg - 読みやすさを維持。
+余白と間隔
+パディングとマージン: p-2 md:p-4 lg:p-6 - 画面サイズに応じて余白を調整。
+要素間の間隔: space-y-2 md:space-y-4 lg:space-y-6 - 縦方向の要素間に適用。
+ボタンとコンポーネント
+ボタンサイズ: py-1 px-2 md:py-2 md:px-4 lg:py-3 lg:px-6 - 画面サイズに応じてボタンのサイズを調整。
+カード: p-2 md:p-4 lg:p-6 - カード内の余白を調整。
+画像とメディア
+画像サイズ: w-full h-auto - 画像がコンテナにフィットするように調整。
+メディアクエリ: Tailwind CSSのブレークポイントを活用して、特定の画面サイズでスタイルを変更。
+ナビゲーション
+モバイルメニュー: hidden md:block - モバイルでは隠し、デスクトップでは表示。
+ハンバーガーメニュー: block md:hidden - モバイルで表示し、デスクトップでは隠す。
+アクセシビリティ配慮
+タッチターゲット: ボタンやリンクのタッチターゲットを十分に大きくする。
+フォーカス状態: focus:outline-none focus:ring-2 focus:ring-green-
