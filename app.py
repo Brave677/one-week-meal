@@ -198,7 +198,7 @@ def generate_ai_menu():
 冷蔵庫の食材を優先的に使用し、栄養バランスを考慮した献立を提案してください。
 """
 
-        response = openai.ChatCompletion.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[ 
                 {"role": "system", "content": "あなたは栄養士で料理の専門家です。与えられた条件に基づいて最適な献立を提案してください。"},
