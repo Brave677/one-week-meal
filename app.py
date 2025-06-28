@@ -1,6 +1,69 @@
 import streamlit as st
 import openai
 
+# Add custom CSS for overall UI design adjustments with light and dark mode support
+st.markdown(
+    """
+    <style>
+    .stApp {
+        font-family: 'sans-serif';
+    }
+    
+    /* Light mode */
+    .light-mode {
+        background-color: #ffffff;
+        color: #333333;
+    }
+    .light-mode .stButton>button {
+        background-color: #38a169;
+        color: #ffffff;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        transition: background-color 0.3s ease;
+    }
+    .light-mode .stButton>button:hover {
+        background-color: #2f855a;
+    }
+    .light-mode .stSidebar {
+        background-color: #f7fafc;
+    }
+    .light-mode .stTable {
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Dark mode */
+    .dark-mode {
+        background-color: #1a202c;
+        color: #e2e8f0;
+    }
+    .dark-mode .stButton>button {
+        background-color: #2f855a;
+        color: #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        transition: background-color 0.3s ease;
+    }
+    .dark-mode .stButton>button:hover {
+        background-color: #276749;
+    }
+    .dark-mode .stSidebar {
+        background-color: #2d3748;
+    }
+    .dark-mode .stTable {
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Apply the mode class to the app
+mode = st.sidebar.radio("モード選択", ("ライトモード", "ダークモード"))
+mode_class = "light-mode" if mode == "ライトモード" else "dark-mode"
+st.markdown(f'<div class="stApp {mode_class}">', unsafe_allow_html=True)
+
 st.title("1週間の献立管理アプリ")
 
 # OpenAI APIキーの入力
@@ -79,3 +142,6 @@ if "menu" in st.session_state:
     st.table(st.session_state.menu)
 else:
     st.info("献立がまだ生成されていません。AIで生成してください。")
+
+# Close the mode class div
+st.markdown('</div>', unsafe_allow_html=True)
