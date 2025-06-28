@@ -4,6 +4,79 @@ import openai
 # OpenAI APIキー設定
 api_key = st.sidebar.text_input("OpenAI APIキー", type="password")
 
+if api_key:
+    openai.api_key = api_key
+else:
+    st.error("OPENAI APIキーを入力してください")
+
+# カスタムCSS（Apple風：グリーン・オレンジ中心、清潔感のあるUI）
+st.markdown("""
+<style>
+    /* 全体の背景とフォント */
+    body, .stApp {
+        background-color: #ffffff;
+        color: #2d2d2d;
+        font-family: 'Segoe UI', sans-serif;
+        padding: 1rem;
+    }
+
+    /* 見出し */
+    .title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2f855a;  /* グリーン */
+        margin-bottom: 1rem;
+    }
+
+    /* 入力フォーム */
+    textarea, input, .stSlider {
+        background-color: #f7f7f7;
+        border: 1px solid #dcdcdc;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    /* ボタン */
+    div.stButton > button {
+        background-color: #38a169; /* メイングリーン */
+        color: white;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        transition: 0.3s ease;
+    }
+    div.stButton > button:hover {
+        background-color: #2f855a;
+    }
+
+    /* 出力コンテナ */
+    .result-container {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    /* ダウンロードボタン */
+    .stDownloadButton > button {
+        background-color: #ed8936; /* オレンジ */
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        border: none;
+    }
+
+    /* フォーカススタイル */
+    textarea:focus, input:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(72,187,120,0.5); /* ライトグリーンのリング */
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # --- UI: ユーザー入力 ---
 st.title("1週間の献立AIアプリ 🍽️")
 
