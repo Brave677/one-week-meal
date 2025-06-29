@@ -78,7 +78,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- UI: ユーザー入力 ---
-st.title("1週間の献立AIアプリ 🍽️")
+st.title("One-week-meal 🍽️")
 
 with st.form("meal_form"):
     st.subheader("条件を入力してください")
@@ -123,9 +123,10 @@ if submit:
         )
 
         output = response.choices[0].message.content
-        st.success("献立が完成しました！🎉")
+        
 
         if output: 
+            st.success("献立が完成しました！🎉")
             st.markdown(f"<div class='result-container'>{output}</div>", unsafe_allow_html=True)
             st.download_button(
             label="献立をテキストで保存",
