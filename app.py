@@ -124,7 +124,15 @@ if submit:
 
         output = response.choices[0].message.content
         st.success("献立が完成しました！🎉")
-        st.markdown(output)
 
-        # ダウンロードリンク
-    
+        if output: 
+            st.markdown(f"<div class='result-container'>{output}</div>", unsafe_allow_html=True)
+            st.download_button(
+            label="献立をテキストで保存",
+            data=output.encode('utf-8'),
+            file_name="weekly_meal_plan.txt",
+            mime="text/plain"
+            )
+        else:
+            st.error("献立の生成に失敗しました。API応答を確認してください。")
+            st.write(response)  # デバッグ用
