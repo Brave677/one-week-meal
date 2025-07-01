@@ -82,8 +82,8 @@ st.title("One-week-meal 🍽️")
 
 with st.form("meal_form"):
     st.subheader("条件を入力してください")
-    available_ingredients = st.text_area("冷蔵庫にある食材（カンマ区切り）")
-    preferences = st.text_input("好み（例：和食中心、低糖質、ボリューム重視など）")
+    available_ingredients = st.text_area("冷蔵庫にある食材（カンマ区切り）", placeholder="例：キャベツ、鶏むね肉、卵、豆腐")
+    preferences = st.text_input("好み（例：和食中心、低糖質、ボリューム重視など）", placeholder="和食中心、ボリューム重視など")
     budget = st.slider("1週間の予算（円）", 1000, 20000, 5000)
     submit = st.form_submit_button("献立を作成する")
 
