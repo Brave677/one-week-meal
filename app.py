@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+import re
 
 # OpenAI APIキー設定
 api_key = st.sidebar.text_input("OpenAI APIキー", type="password")
@@ -91,7 +92,8 @@ if submit:
     with st.spinner("AIが献立を考え中...⏳"):
         prompt = f"""
         以下の条件に基づいて、1週間分（7日分×朝昼晩）の献立を作成してください。
-        また、それに基づく買い物リスト（食材と必要量）も出力してください。
+        また、それに基づく買い物リスト（食材と必要量）と、各料理のレシピ詳細（材料・手順）も出力してください。
+
 
         [条件]
         - 冷蔵庫にある食材: {available_ingredients}
@@ -111,6 +113,13 @@ if submit:
         [買い物リスト]
         - 食材A：〇〇g
         - 食材B：〇〇個
+
+         [レシピ]
+        ■料理名1
+        材料：
+        手順：
+
+        ■料理名2...
         """
         try:
             response = openai.chat.completions.create(
@@ -140,3 +149,50 @@ if submit:
         else:
             st.error("献立の生成に失敗しました。API応答を確認してください。")
             st.write(response)  # デバッグ用
+            
+            # --- レシピ取得機能 ---
+            if output:
+                matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
+                meal_names = [name.strip() for _, name in matches]
+                unique_meals = sorted(set(meal_names))
+            else:
+                matches = []
+                unique_meals = []
+
+            st.markdown("### 🍳 レシピを見たい料理を選んでください")
+            selected_meal = st.selectbox("料理を選択", [""] + unique_meals)
+
+            if selected_meal:
+                with st.spinner(f"{selected_meal} のレシピを作成中..."):
+                    recipe_prompt = f"""
+                    以下の料理のレシピを詳しく作成してください。
+
+                    料理名: {selected_meal}
+
+                    出力形式：
+                    [材料]
+                    - 食材A：量
+                    - 食材B：量
+
+                    [手順]
+                    1. 手順1
+                    2. 手順2
+                    ...
+                    """
+                    try:
+                        recipe_response = openai.chat.completions.create(
+                            model="gpt-4o",
+                            messages=[
+                                {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
+                                {"role": "user", "content": recipe_prompt}
+                            ],
+                            temperature=0.6
+                        )
+                        recipe_output = recipe_response.choices[0].message.content
+                        st.markdown(f"### 📝 {selected_meal} のレシピ")
+                        st.markdown(recipe_output)
+                    except Exception as e:
+                        st.error("レシピの生成に失敗しました。")
+                        st.exception(e)
+                    else:
+                        st.error("献立の生成に失敗しました。")
