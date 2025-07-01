@@ -2,6 +2,7 @@ import streamlit as st
 import openai
 import re
 
+selected_meal = None
 # OpenAI APIキー設定
 api_key = st.sidebar.text_input("OpenAI APIキー", type="password")
 
@@ -149,16 +150,13 @@ if submit:
         else:
             st.error("献立の生成に失敗しました。API応答を確認してください。")
             st.write(response)  # デバッグ用
-            
-            # --- レシピ取得機能 ---
-            if output:
-                matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
-                meal_names = [name.strip() for _, name in matches]
-                unique_meals = sorted(set(meal_names))
-            else:
-                matches = []
-                unique_meals = []
 
+            # --- レシピ取得機能 ---
+        if output:
+            matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
+            meal_names = [name.strip() for _, name in matches]
+            unique_meals = sorted(set(meal_names))
+            
             st.markdown("### 🍳 レシピを見たい料理を選んでください")
             selected_meal = st.selectbox("料理を選択", [""] + unique_meals)
 
@@ -179,20 +177,20 @@ if submit:
                     2. 手順2
                     ...
                     """
-                    try:
-                        recipe_response = openai.chat.completions.create(
-                            model="gpt-4o",
-                            messages=[
-                                {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
-                                {"role": "user", "content": recipe_prompt}
-                            ],
-                            temperature=0.6
-                        )
-                        recipe_output = recipe_response.choices[0].message.content
-                        st.markdown(f"### 📝 {selected_meal} のレシピ")
-                        st.markdown(recipe_output)
-                    except Exception as e:
-                        st.error("レシピの生成に失敗しました。")
-                        st.exception(e)
-                    else:
-                        st.error("献立の生成に失敗しました。")
+            try:
+                recipe_response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
+                    {"role": "user", "content": recipe_prompt}
+                    ],
+                temperature=0.6
+                )
+                recipe_output = recipe_response.choices[0].message.content
+                st.markdown(f"### 📝 {selected_meal} のレシピ")
+                st.markdown(recipe_output)
+            except Exception as e:
+                st.error("レシピの生成に失敗しました。")
+                st.exception(e)
+            else:
+                st.error("献立の生成に失敗しました。")
