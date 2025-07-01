@@ -112,17 +112,19 @@ if submit:
         - 食材A：〇〇g
         - 食材B：〇〇個
         """
-
-        response = openai.chat.completions.create(
-            model="gpt-4o",  # または "gpt-4"
-            messages=[
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-4o",  # または "gpt-4"
+                messages=[
                 {"role": "system", "content": "あなたは献立を考えるプロの料理アドバイザーです。"},
                 {"role": "user", "content": prompt}
-            ],
+                ],
             temperature=0.7
         )
-
-        output = response.choices[0].message.content
+            output = response.choices[0].message.content
+        except Exception as e:
+            st.error(f"献立の生成に失敗しました:{e}")
+            st.stop()
         
 
         if output: 
