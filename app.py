@@ -127,7 +127,8 @@ if submit:
 
         if output: 
             st.success("献立が完成しました！🎉")
-            st.markdown(f"<div class='result-container'>{output}</div>", unsafe_allow_html=True)
+            st.markdown("### 📝 献立と買い物リスト")
+            st.markdown(output)
             st.download_button(
             label="献立をテキストで保存",
             data=output.encode('utf-8'),
