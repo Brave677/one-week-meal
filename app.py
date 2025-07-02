@@ -2,8 +2,11 @@ import streamlit as st
 import openai
 import re
 
-# OpenAI APIキー設定
-openai.api_key = st.secrets.OpenAIAPI.openai_api_key
+# secrets.tomlファイルからAPIキーを取得
+api_key = st.secrets["openai"]["api_key"]
+
+# OpenAI APIに接続
+openai.api_key = api_key
 
 # カスタムCSS（Apple風：グリーン・オレンジ中心、清潔感のあるUI）
 st.markdown("""
