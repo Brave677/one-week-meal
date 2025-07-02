@@ -3,12 +3,7 @@ import openai
 import re
 
 # OpenAI APIキー設定
-api_key = st.sidebar.text_input("OpenAI APIキー", type="password")
-
-if not api_key:
-    st.error("OPENAI APIキーを入力してください")
-    st.stop()
-openai.api_key = api_key
+openai.api_key = st.secrets.OpenAIAPI.openai_api_key
 
 # カスタムCSS（Apple風：グリーン・オレンジ中心、清潔感のあるUI）
 st.markdown("""
