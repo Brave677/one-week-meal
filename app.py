@@ -151,9 +151,11 @@ if submit:
             st.success("献立が完成しました！🎉")
         except Exception as e:
             st.error(f"献立の生成に失敗しました:{e}")
+            # エラー時もst.session_state["output"]をクリアするか、無効な値に設定
+            st.session_state["output"] = "" 
             st.stop()
         
-
+# outputが存在する場合のみ、以下のUIを表示
 if "output" in st.session_state:
     output = st.session_state["output"]
 
@@ -200,7 +202,9 @@ if "output" in st.session_state:
             # 各レシピブロックを整形して表示
             for block in recipe_text.split("■"):
                 if block.strip():
-                    st.markdown(f"<div class='recipe-card'>{block.strip()}</div>", unsafe_allow_html=True)
+                    # 各レシピの最初の行をタイトルとして抽出
+                    first_line = block.strip().split('\n')[0]
+                    st.markdown(f"<div class='recipe-card'>**{first_line}**<br>{block.strip().replace(first_line, '', 1)}</div>", unsafe_allow_html=True)
             st.download_button(
                 label="📥 レシピをテキストで保存",
                 data=recipe_text.encode('utf-8'),
@@ -209,55 +213,5 @@ if "output" in st.session_state:
             )
         else:
             st.info("レシピデータがありません。")
-            # --- レシピ取得機能 ---
-        if output:
-            matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
-            meal_names = [name.strip() for _, name in matches]
-            unique_meals = sorted(set(meal_names))
 
-            st.markdown("### 🍳 レシピを見たい料理を選んでください")
-            selected_meal = st.selectbox("料理を選択", unique_meals)
-            
-            if unique_meals:
-                default_index = 0
-                if "selected_meal" in st.session_state and st.session_state["selected_meal"] in unique_meals:
-                    default_index = unique_meals.index(st.session_state["selected_meal"]) + 1 # +1 は空文字の分
-                    selected_meal = st.selectbox("料理を選択", [""] + unique_meals, index=default_index)
-            else:
-                selected_meal = st.selectbox("料理を選択", [""], disabled=True)
-                st.info("献立から取得できる料理名がありません。")
-
-
-            if selected_meal and selected_meal != "": # 空文字列でないことを確認
-                st.session_state["selected_meal"] = selected_meal
-                with st.spinner(f"{selected_meal} のレシピを作成中..."):
-                    recipe_prompt = f"""
-                    以下の料理のレシピを詳しく作成してください。
-
-                    料理名: {selected_meal}
-
-                    出力形式：
-                    [材料]
-                    - 食材A：量
-                    - 食材B：量
-
-                    [手順]
-                    1. 手順1
-                    2. 手順2
-                    ...
-                    """
-                    try:
-                        recipe_response = openai.chat.completions.create(
-                        model="gpt-4o",
-                        messages=[
-                            {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
-                            {"role": "user", "content": recipe_prompt}
-                        ],
-                        temperature=0.6
-                        )
-                        recipe_output = recipe_response.choices[0].message.content
-                        st.markdown(f"### 📝 {selected_meal} のレシピ")
-                        st.markdown(recipe_output)
-                    except Exception as e:
-                        st.error("レシピの生成に失敗しました。")
-                        st.exception(e)
+  
