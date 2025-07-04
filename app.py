@@ -158,11 +158,9 @@ if submit:
                 temperature=0.7
             )
             st.session_state["output"] = response.choices[0].message.content
-            st.success("献立が完成しました！🎉")
         except Exception as e:
-            st.error(f"献立の生成に失敗しました:{e}")
-            # エラー時もst.session_state["output"]をクリアするか、無効な値に設定
-            st.session_state["output"] = "" 
+            st.error("OpenAI APIのエラーが発生しました。")
+            st.exception(e) 
             st.stop()
         
 # outputが存在する場合のみ、以下のUIを表示
