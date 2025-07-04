@@ -138,53 +138,72 @@ if submit:
             st.success("献立が完成しました！🎉")
             st.markdown("### 📝 献立と買い物リスト")
             st.markdown(output)
-            st.download_button(
-            label="献立をテキストで保存",
-            data=output.encode('utf-8'),
-            file_name="weekly_meal_plan.txt",
-            mime="text/plain"
-            ) 
+            meal_match = re.search(r"\[献立\](.*?)\[買い物リスト\]", output, re.DOTALL)
+            shopping_match = re.search(r"\[買い物リスト\](.*?)\[レシピ\]", output, re.DOTALL)
+            recipe_match = re.search(r"\[レシピ\](.*)", output, re.DOTALL)
+            meal_plan_text = meal_match.group(1).strip() if meal_match else ""
+            shopping_list_text = shopping_match.group(1).strip() if shopping_match else ""
+            recipe_text = recipe_match.group(1).strip() if recipe_match else ""
+
+        st.download_button(
+        label="献立をテキストで保存",
+        data=meal_plan_text.encode('utf-8'),
+        file_name="weekly_meal_plan.txt",
+        mime="text/plain"
+        ) 
+        st.download_button(
+        label="買い物リストをテキストで保存",
+        data=shopping_list_text.encode('utf-8'),
+        file_name="shopping_list.txt",
+        mime="text/plain"
+        )
+        st.download_button(
+        label="レシピをテキストで保存",
+        data=recipe_text.encode('utf-8'),   
+        file_name="recipes.txt",
+        mime="text/plain"
+        )
 
             # --- レシピ取得機能 ---
-            if output:
-                matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
-                meal_names = [name.strip() for _, name in matches]
-                unique_meals = sorted(set(meal_names))
+        if output:
+            matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
+            meal_names = [name.strip() for _, name in matches]
+            unique_meals = sorted(set(meal_names))
 
-                st.markdown("### 🍳 レシピを見たい料理を選んでください")
-                selected_meal = st.selectbox("料理を選択", [""] + unique_meals)
+            st.markdown("### 🍳 レシピを見たい料理を選んでください")
+            selected_meal = st.selectbox("料理を選択", [""] + unique_meals)
 
-                if selected_meal:
-                    with st.spinner(f"{selected_meal} のレシピを作成中..."):
-                        recipe_prompt = f"""
-                        以下の料理のレシピを詳しく作成してください。
+            if selected_meal:
+                with st.spinner(f"{selected_meal} のレシピを作成中..."):
+                    recipe_prompt = f"""
+                    以下の料理のレシピを詳しく作成してください。
 
-                        料理名: {selected_meal}
+                    料理名: {selected_meal}
 
-                        出力形式：
-                        [材料]
-                        - 食材A：量
-                        - 食材B：量
+                    出力形式：
+                    [材料]
+                    - 食材A：量
+                    - 食材B：量
 
-                        [手順]
-                        1. 手順1
-                        2. 手順2
-                        ...
-                        """
-                        try:
-                            recipe_response = openai.chat.completions.create(
-                            model="gpt-4o",
-                            messages=[
-                                {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
-                                {"role": "user", "content": recipe_prompt}
-                            ],
-                            temperature=0.6
-                            )
-                            recipe_output = recipe_response.choices[0].message.content
-                            st.markdown(f"### 📝 {selected_meal} のレシピ")
-                            st.markdown(recipe_output)
-                        except Exception as e:
-                            st.error("レシピの生成に失敗しました。")
-                            st.exception(e)
-            else:
-                st.error("献立の生成に失敗しました。")
+                    [手順]
+                    1. 手順1
+                    2. 手順2
+                    ...
+                    """
+                    try:
+                        recipe_response = openai.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": "あなたは料理のレシピに詳しいプロのシェフです。"},
+                            {"role": "user", "content": recipe_prompt}
+                        ],
+                        temperature=0.6
+                        )
+                        recipe_output = recipe_response.choices[0].message.content
+                        st.markdown(f"### 📝 {selected_meal} のレシピ")
+                        st.markdown(recipe_output)
+                    except Exception as e:
+                        st.error("レシピの生成に失敗しました。")
+                        st.exception(e)
+        else:
+            st.error("献立の生成に失敗しました。")
