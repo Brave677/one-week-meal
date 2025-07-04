@@ -166,7 +166,8 @@ if submit:
 # outputが存在する場合のみ、以下のUIを表示
 if "output" in st.session_state:
     output = st.session_state["output"]
-
+    st.success("献立が完成しました！🎉")
+    tabs = st.tabs(["📅 献立", "🛒 買い物リスト", "📖 レシピ"])
     # 正規表現で各セクションを抽出
     meal_match = re.search(r"\[献立\](.*?)\[買い物リスト\]", output, re.DOTALL)
     shopping_match = re.search(r"\[買い物リスト\](.*?)\[レシピ\]", output, re.DOTALL)
@@ -176,33 +177,16 @@ if "output" in st.session_state:
     shopping_list_text = shopping_match.group(1).strip() if shopping_match else ""
     recipe_text = recipe_match.group(1).strip() if recipe_match else ""
 
-    tabs = st.tabs(["📅 献立", "🛒 買い物リスト", "📖 レシピ"])
-
     with tabs[0]:
         st.markdown("### 📅 献立プラン")
-        if meal_plan_text:
-            st.markdown(meal_plan_text)
-            st.download_button(
-                label="📥 献立をテキストで保存",
-                data=meal_plan_text.encode('utf-8'),
-                file_name="weekly_meal_plan.txt",
-                mime="text/plain"
-            )
-        else:
-            st.info("献立データがありません。")
+        st.markdown(meal_plan_text)
+        st.download_button("📥 献立をテキストで保存", meal_plan_text.encode("utf-8"), "weekly_meal_plan.txt")
 
     with tabs[1]:
         st.markdown("### 🛒 買い物リスト")
-        if shopping_list_text:
-            st.markdown(shopping_list_text)
-            st.download_button(
-                label="📥 買い物リストをテキストで保存",
-                data=shopping_list_text.encode('utf-8'),
-                file_name="shopping_list.txt",
-                mime="text/plain"
-            )
-        else:
-            st.info("買い物リストデータがありません。")
+        st.markdown(shopping_list_text)
+        st.download_button("📥 買い物リストをテキストで保存", shopping_list_text.encode("utf-8"), "shopping_list.txt")
+
 
     with tabs[2]:
         st.markdown("### 📖 レシピ一覧")
