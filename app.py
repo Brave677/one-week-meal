@@ -146,43 +146,69 @@ if submit:
                 {"role": "user", "content": prompt}
                 ],
             temperature=0.7
-        )
-            output = response.choices[0].message.content
+            )
+            st.session_state["output"] = response.choices[0].message.content
+            st.success("献立が完成しました！🎉")
         except Exception as e:
             st.error(f"献立の生成に失敗しました:{e}")
             st.stop()
         
 
-        if output: 
-            st.success("献立が完成しました！🎉")
-            st.markdown("### 📝 献立と買い物リスト")
-            st.markdown(output)
-            meal_match = re.search(r"\[献立\](.*?)\[買い物リスト\]", output, re.DOTALL)
-            shopping_match = re.search(r"\[買い物リスト\](.*?)\[レシピ\]", output, re.DOTALL)
-            recipe_match = re.search(r"\[レシピ\](.*)", output, re.DOTALL)
-            meal_plan_text = meal_match.group(1).strip() if meal_match else ""
-            shopping_list_text = shopping_match.group(1).strip() if shopping_match else ""
-            recipe_text = recipe_match.group(1).strip() if recipe_match else ""
+if "output" in st.session_state:
+    output = st.session_state["output"]
 
-        st.download_button(
-        label="献立をテキストで保存",
-        data=meal_plan_text.encode('utf-8'),
-        file_name="weekly_meal_plan.txt",
-        mime="text/plain"
-        ) 
-        st.download_button(
-        label="買い物リストをテキストで保存",
-        data=shopping_list_text.encode('utf-8'),
-        file_name="shopping_list.txt",
-        mime="text/plain"
-        )
-        st.download_button(
-        label="レシピをテキストで保存",
-        data=recipe_text.encode('utf-8'),   
-        file_name="recipes.txt",
-        mime="text/plain"
-        )
+    # 正規表現で各セクションを抽出
+    meal_match = re.search(r"\[献立\](.*?)\[買い物リスト\]", output, re.DOTALL)
+    shopping_match = re.search(r"\[買い物リスト\](.*?)\[レシピ\]", output, re.DOTALL)
+    recipe_match = re.search(r"\[レシピ\](.*)", output, re.DOTALL)
 
+    meal_plan_text = meal_match.group(1).strip() if meal_match else ""
+    shopping_list_text = shopping_match.group(1).strip() if shopping_match else ""
+    recipe_text = recipe_match.group(1).strip() if recipe_match else ""
+
+    tabs = st.tabs(["📅 献立", "🛒 買い物リスト", "📖 レシピ"])
+
+    with tabs[0]:
+        st.markdown("### 📅 献立プラン")
+        if meal_plan_text:
+            st.markdown(meal_plan_text)
+            st.download_button(
+                label="📥 献立をテキストで保存",
+                data=meal_plan_text.encode('utf-8'),
+                file_name="weekly_meal_plan.txt",
+                mime="text/plain"
+            )
+        else:
+            st.info("献立データがありません。")
+
+    with tabs[1]:
+        st.markdown("### 🛒 買い物リスト")
+        if shopping_list_text:
+            st.markdown(shopping_list_text)
+            st.download_button(
+                label="📥 買い物リストをテキストで保存",
+                data=shopping_list_text.encode('utf-8'),
+                file_name="shopping_list.txt",
+                mime="text/plain"
+            )
+        else:
+            st.info("買い物リストデータがありません。")
+
+    with tabs[2]:
+        st.markdown("### 📖 レシピ一覧")
+        if recipe_text:
+            # 各レシピブロックを整形して表示
+            for block in recipe_text.split("■"):
+                if block.strip():
+                    st.markdown(f"<div class='recipe-card'>{block.strip()}</div>", unsafe_allow_html=True)
+            st.download_button(
+                label="📥 レシピをテキストで保存",
+                data=recipe_text.encode('utf-8'),
+                file_name="all_recipes.txt",
+                mime="text/plain"
+            )
+        else:
+            st.info("レシピデータがありません。")
             # --- レシピ取得機能 ---
         if output:
             matches = re.findall(r"[-・]\s*(朝|昼|夜|朝ごはん|昼食|夕食)[：:](.+)", output)
