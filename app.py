@@ -13,8 +13,8 @@ st.markdown("""
 <style>
     /* 全体の背景とフォント */
     body, .stApp {
-        background-color: #ffffff;
-        color: #2d2d2d;
+        background-color: var(--background-color, #ffffff);
+        color: var(--text-color, #2d2d2d);
         font-family: 'Segoe UI', sans-serif;
         padding: 1rem;
     }
@@ -23,16 +23,17 @@ st.markdown("""
     .title {
         font-size: 2rem;
         font-weight: bold;
-        color: #2f855a;  /* グリーン */
+        color: var(--primary-color, #2f855a);  /* グリーン */
         margin-bottom: 1rem;
     }
 
     /* 入力フォーム */
     textarea, input, .stSlider {
-        background-color: #f7f7f7;
-        border: 1px solid #dcdcdc;
-        border-radius: 0.5rem;
-        padding: 0.75rem;
+       background-color: var(--secondary-background-color, #f0f0f0);
+       color: var(--text-color, #2d2d2d);
+       border: 1px solid #dcdcdc;
+       border-radius: 0.5rem;
+       padding: 0.75rem;
     }
 
     /* ボタン */
@@ -51,7 +52,8 @@ st.markdown("""
 
     /* 出力コンテナ */
     .result-container {
-        background-color: white;
+        background-color: var(--secondary-background-color, #f0f0f0);
+        color: var(--text-color, #2d2d2d);
         border-radius: 0.75rem;
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         padding: 1.5rem;
