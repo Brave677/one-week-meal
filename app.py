@@ -216,9 +216,20 @@ if "output" in st.session_state:
             unique_meals = sorted(set(meal_names))
 
             st.markdown("### 🍳 レシピを見たい料理を選んでください")
-            selected_meal = st.selectbox("料理を選択", [""] + unique_meals)
+            selected_meal = st.selectbox("料理を選択", unique_meals)
+            
+            if unique_meals:
+                default_index = 0
+                if "selected_meal" in st.session_state and st.session_state["selected_meal"] in unique_meals:
+                    default_index = unique_meals.index(st.session_state["selected_meal"]) + 1 # +1 は空文字の分
+                    selected_meal = st.selectbox("料理を選択", [""] + unique_meals, index=default_index)
+            else:
+                selected_meal = st.selectbox("料理を選択", [""], disabled=True)
+                st.info("献立から取得できる料理名がありません。")
 
-            if selected_meal:
+
+            if selected_meal and selected_meal != "": # 空文字列でないことを確認
+                st.session_state["selected_meal"] = selected_meal
                 with st.spinner(f"{selected_meal} のレシピを作成中..."):
                     recipe_prompt = f"""
                     以下の料理のレシピを詳しく作成してください。
@@ -250,5 +261,3 @@ if "output" in st.session_state:
                     except Exception as e:
                         st.error("レシピの生成に失敗しました。")
                         st.exception(e)
-        else:
-            st.error("献立の生成に失敗しました。")
