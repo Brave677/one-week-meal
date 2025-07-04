@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 import re
+from datetime import datetime
 
 # secrets.tomlファイルからAPIキーを取得
 api_key = st.secrets["openai"]["api_key"]
@@ -44,7 +45,7 @@ st.markdown("""
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     border: 1px solid #ccc;
-}
+    }
 
     /* ボタン */
     div.stButton > button {
@@ -85,6 +86,7 @@ st.markdown("""
         outline: none;
         box-shadow: 0 0 0 3px rgba(72,187,120,0.5); /* ライトグリーンのリング */
     }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -186,24 +188,36 @@ if "output" in st.session_state:
         st.markdown("### 🛒 買い物リスト")
         st.markdown(shopping_list_text)
         st.download_button("📥 買い物リストをテキストで保存", shopping_list_text.encode("utf-8"), "shopping_list.txt")
-
-
+    
     with tabs[2]:
-        st.markdown("### 📖 レシピ一覧")
+        st.markdown("### 📖 レシピ")
         if recipe_text:
-            # 各レシピブロックを整形して表示
-            for block in recipe_text.split("■"):
-                if block.strip():
-                    # 各レシピの最初の行をタイトルとして抽出
-                    first_line = block.strip().split('\n')[0]
-                    st.markdown(f"<div class='recipe-card'>**{first_line}**<br>{block.strip().replace(first_line, '', 1)}</div>", unsafe_allow_html=True)
-            st.download_button(
-                label="📥 レシピをテキストで保存",
-                data=recipe_text.encode('utf-8'),
-                file_name="all_recipes.txt",
-                mime="text/plain"
-            )
-        else:
-            st.info("レシピデータがありません。")
+            # 各曜日のレシピを分割する正規表現
+            # 「【曜日名】」で始まる行で分割
+            # re.splitは、区切り文字も結果に含まれることがあるため、フィルタリングが必要になる
+            raw_daily_recipes = re.split(r"【(.*?)】", recipe_text)
 
-  
+            # Splitの結果は ["", "月曜日", "レシピ内容", "", "火曜日", "レシピ内容", ...] となるため、
+            # 曜日名とレシピ内容のペアを抽出する
+            daily_recipes_dict = {}
+            current_day = None
+            for i, part in enumerate(raw_daily_recipes):
+                if i % 2 == 1: # 奇数インデックスは曜日名
+                    current_day = part.strip()
+                elif i % 2 == 0 and part.strip() and current_day: # 偶数インデックスはレシピ内容
+                    daily_recipes_dict[current_day] = part.strip()
+                    current_day = None # リセット
+
+            if daily_recipes_dict:
+                for day, content in daily_recipes_dict.items():
+                    with st.expander(f"✨ **{day}のレシピ**"):
+                        st.markdown(content)
+                        st.download_button(
+                            f"📥 {day}のレシピをテキストで保存",
+                            content.encode("utf-8"),
+                            f"{day}_recipe.txt"
+                        )
+            else:
+                st.warning("レシピが見つかりませんでした。出力形式を確認してください。")
+        else:
+            st.warning("レシピが見つかりませんでした。")
