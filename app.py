@@ -35,6 +35,16 @@ st.markdown("""
        border-radius: 0.5rem;
        padding: 0.75rem;
     }
+    .st-expander > summary {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color, #2d2d2d);
+    background-color: var(--secondary-background-color, #f0f0f0);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+}
 
     /* ボタン */
     div.stButton > button {
@@ -87,13 +97,13 @@ st.markdown("""
 - 各料理のレシピを個別に生成
 - テキストで献立・買い物リスト・レシピを保存
 """)
-
-with st.form("meal_form"):
-    st.subheader("条件を入力してください")
-    available_ingredients = st.text_area("冷蔵庫にある食材（カンマ区切り）", placeholder="例：キャベツ、鶏むね肉、卵、豆腐")
-    preferences = st.text_input("好み（例：和食中心、低糖質、ボリューム重視など）", placeholder="和食中心、ボリューム重視など")
-    budget = st.slider("1週間の予算（円）", 1000, 20000, 5000, step=500)
-    submit = st.form_submit_button("献立を作成する")
+with st.expander("🍳 **条件を入力する**（食材・好み・予算）", expanded=True):
+    with st.form("meal_form"):
+        st.subheader("条件を入力してください")
+        available_ingredients = st.text_area("冷蔵庫にある食材（カンマ区切り）", placeholder="例：キャベツ、鶏むね肉、卵、豆腐")
+        preferences = st.text_input("好み（例：和食中心、低糖質、ボリューム重視など）", placeholder="和食中心、ボリューム重視など")
+        budget = st.slider("1週間の予算（円）", 1000, 20000, 5000, step=500)
+        submit = st.form_submit_button("献立を作成する")
 
 if submit:
     with st.spinner("AIが献立を考え中...⏳"):
