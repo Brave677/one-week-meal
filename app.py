@@ -12,10 +12,37 @@ openai.api_key = api_key
 # カスタムCSS（Apple風：グリーン・オレンジ中心、清潔感のあるUI）
 st.markdown("""
 <style>
+    /* ルート要素でカスタムプロパティを定義 */
+    :root {
+        /* ライトモードのデフォルト */
+        --background-color: #ffffff;
+        --text-color: #2d2d2d;
+        --primary-color: #2f855a; /* グリーン */
+        --secondary-background-color: #f0f0f0;
+        --border-color: #dcdcdc;
+        --shadow-color: rgba(0,0,0,0.05);
+        --button-bg-color: #38a169; /* メイングリーン */
+        --button-hover-bg-color: #2f855a;
+        --download-button-bg-color: #ed8936; /* オレンジ */
+    }
+
+    /* ダークモードのカスタムプロパティ */
+    [data-theme="dark"] {
+        --background-color: #1a1a1a; /* ダークな背景 */
+        --text-color: #e0e0e0; /* 明るいテキスト */
+        --primary-color: #48bb78; /* 明るいグリーン */
+        --secondary-background-color: #2d2d2d; /* ダークな要素の背景 */
+        --border-color: #444444;
+        --shadow-color: rgba(0,0,0,0.2);
+        --button-bg-color: #38a169; /* ダークモードでも視認性の高いグリーンを維持 */
+        --button-hover-bg-color: #48bb78;
+        --download-button-bg-color: #f6ad55; /* 明るいオレンジ */
+    }
+
     /* 全体の背景とフォント */
     body, .stApp {
-        background-color: var(--background-color, #ffffff);
-        color: var(--text-color, #2d2d2d);
+        background-color: var(--background-color);
+        color: var(--text-color);
         font-family: 'Segoe UI', sans-serif;
         padding: 1rem;
     }
@@ -24,32 +51,32 @@ st.markdown("""
     .title {
         font-size: 2rem;
         font-weight: bold;
-        color: var(--primary-color, #2f855a);  /* グリーン */
+        color: var(--primary-color);
         margin-bottom: 1rem;
     }
 
     /* 入力フォーム */
     textarea, input, .stSlider {
-       background-color: var(--secondary-background-color, #f0f0f0);
-       color: var(--text-color, #2d2d2d);
-       border: 1px solid #dcdcdc;
+       background-color: var(--secondary-background-color);
+       color: var(--text-color);
+       border: 1px solid var(--border-color);
        border-radius: 0.5rem;
        padding: 0.75rem;
     }
     .st-expander > summary {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-color, #2d2d2d);
-    background-color: var(--secondary-background-color, #f0f0f0);
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        background-color: var(--secondary-background-color);
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
     }
 
     /* ボタン */
     div.stButton > button {
-        background-color: #38a169; /* メイングリーン */
+        background-color: var(--button-bg-color);
         color: white;
         padding: 0.6rem 1.2rem;
         font-size: 1rem;
@@ -58,22 +85,22 @@ st.markdown("""
         transition: 0.3s ease;
     }
     div.stButton > button:hover {
-        background-color: #2f855a;
+        background-color: var(--button-hover-bg-color);
     }
 
     /* 出力コンテナ */
     .result-container {
-        background-color: var(--secondary-background-color, #f0f0f0);
-        color: var(--text-color, #2d2d2d);
+        background-color: var(--secondary-background-color);
+        color: var(--text-color);
         border-radius: 0.75rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 8px var(--shadow-color);
         padding: 1.5rem;
         margin-top: 1rem;
     }
 
     /* ダウンロードボタン */
     .stDownloadButton > button {
-        background-color: #ed8936; /* オレンジ */
+        background-color: var(--download-button-bg-color);
         color: white;
         padding: 0.5rem 1rem;
         font-size: 1rem;
@@ -84,7 +111,7 @@ st.markdown("""
     /* フォーカススタイル */
     textarea:focus, input:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(72,187,120,0.5); /* ライトグリーンのリング */
+        box-shadow: 0 0 0 3px var(--primary-color);
     }
 
 </style>
