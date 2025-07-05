@@ -171,11 +171,14 @@ if submit:
         [手順]
         1. 手順...
 
-        ■昼：料理名
-        ...
-
         【火曜日】
-        ...
+        ■朝：料理名
+        [材料]
+        - 食材：量
+        [手順]
+        1. 手順...
+
+        （〜日曜日まで同様に）
         """
         try:
             response = openai.chat.completions.create(
@@ -219,31 +222,27 @@ if "output" in st.session_state:
     with tabs[2]:
         st.markdown("### 📖 レシピ")
         if recipe_text:
-            # 各曜日のレシピを分割する正規表現
-            # 「【曜日名】」で始まる行で分割
-            # re.splitは、区切り文字も結果に含まれることがあるため、フィルタリングが必要になる
-            raw_daily_recipes = re.split(r"【(.*?)】", recipe_text)
+            # 改善点: re.findall を使用して、すべての曜日とレシピのペアを抽出
+            # パターン: 【曜日名】の後に続く、次の【曜日名】か文字列の末尾までの内容
+            daily_recipes = re.findall(r"【(月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】\s*([\s\S]*?)(?=(?:【(?:月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】)|\Z)", recipe_text)
 
-            # Splitの結果は ["", "月曜日", "レシピ内容", "", "火曜日", "レシピ内容", ...] となるため、
-            # 曜日名とレシピ内容のペアを抽出する
             daily_recipes_dict = {}
-            current_day = None
-            for i, part in enumerate(raw_daily_recipes):
-                if i % 2 == 1: # 奇数インデックスは曜日名
-                    current_day = part.strip()
-                elif i % 2 == 0 and part.strip() and current_day: # 偶数インデックスはレシピ内容
-                    daily_recipes_dict[current_day] = part.strip()
-                    current_day = None # リセット
+            for day, content in daily_recipes:
+                daily_recipes_dict[day.strip()] = content.strip()
 
             if daily_recipes_dict:
-                for day, content in daily_recipes_dict.items():
-                    with st.expander(f"✨ **{day}のレシピ**"):
-                        st.markdown(content)
-                        st.download_button(
-                            f"📥 {day}のレシピをテキストで保存",
-                            content.encode("utf-8"),
-                            f"{day}_recipe.txt"
-                        )
+                # 曜日の順序を固定する（オプション）
+                ordered_days = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"]
+                for day in ordered_days:
+                    if day in daily_recipes_dict:
+                        content = daily_recipes_dict[day]
+                        with st.expander(f"✨ **{day}のレシピ**"):
+                            st.markdown(content)
+                            st.download_button(
+                                f"📥 {day}のレシピをテキストで保存",
+                                content.encode("utf-8"),
+                                f"{day}_recipe.txt"
+                            )
             else:
                 st.warning("レシピが見つかりませんでした。出力形式を確認してください。")
         else:
