@@ -1,7 +1,6 @@
 import streamlit as st
 import openai
 import re
-from datetime import datetime
 
 # secrets.tomlファイルからAPIキーを取得
 api_key = st.secrets["openai"]["api_key"]
@@ -10,7 +9,7 @@ api_key = st.secrets["openai"]["api_key"]
 openai.api_key = api_key
 
 # カスタムCSS（Apple風：グリーン・オレンジ中心、清潔感のあるUI）
-st.markdown("""
+css = """
 <style>
     /* ルート要素でカスタムプロパティを定義 */
     :root {
@@ -41,8 +40,6 @@ st.markdown("""
 
     /* 全体の背景とフォント */
     body, .stApp {
-        background-color: var(--background-color);
-        color: var(--text-color);
         font-family: 'Segoe UI', sans-serif;
         padding: 1rem;
     }
@@ -56,13 +53,14 @@ st.markdown("""
     }
 
     /* 入力フォーム */
-    textarea, input, .stSlider {
+    textarea, input, .stSlider, {
        background-color: var(--secondary-background-color);
        color: var(--text-color);
        border: 1px solid var(--border-color);
        border-radius: 0.5rem;
        padding: 0.75rem;
     }
+
     .st-expander > summary {
         font-size: 1.2rem;
         font-weight: 600;
@@ -115,7 +113,9 @@ st.markdown("""
     }
 
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(css, unsafe_allow_html=True) 
+
 
 # --- UI: ユーザー入力 ---
 st.title("One-week-meal 🍽️")
