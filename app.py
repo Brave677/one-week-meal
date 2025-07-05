@@ -27,15 +27,15 @@ css = """
 
     /* ダークモードのカスタムプロパティ */
     [data-theme="dark"] {
-        --background-color: #1a1a1a; /* ダークな背景 */
-        --text-color: #e0e0e0; /* 明るいテキスト */
-        --primary-color: #48bb78; /* 明るいグリーン */
-        --secondary-background-color: #2d2d2d; /* ダークな要素の背景 */
-        --border-color: #444444;
-        --shadow-color: rgba(0,0,0,0.2);
-        --button-bg-color: #38a169; /* ダークモードでも視認性の高いグリーンを維持 */
-        --button-hover-bg-color: #48bb78;
-        --download-button-bg-color: #f6ad55; /* 明るいオレンジ */
+        --background-color: #121212;  /* より黒に近い背景でコントラストUP */
+        --text-color: #ffffff;        /* 真っ白な文字で読みやすく */
+        --primary-color: #90ee90;     /* 明るめグリーン */
+        --secondary-background-color: #1e1e1e;
+        --border-color: #666666;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --button-bg-color: #45c36f;   /* より明るく鮮やかに */
+        --button-hover-bg-color: #34a95a;
+        --download-button-bg-color: #ffa94d; /* 明るいオレンジで目立つ */
     }
 
     /* 全体の背景とフォント */
