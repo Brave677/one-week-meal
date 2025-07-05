@@ -42,6 +42,7 @@ css = """
     body, .stApp {
         font-family: 'Segoe UI', sans-serif;
         padding: 1rem;
+        box-sizing: border-box;
     }
 
     /* 見出し */
@@ -59,6 +60,8 @@ css = """
        border: 1px solid var(--border-color);
        border-radius: 0.5rem;
        padding: 0.75rem;
+       width: 100%;
+       box-sizing: border-box;
     }
 
     .st-expander > summary {
@@ -110,6 +113,34 @@ css = """
     textarea:focus, input:focus {
         outline: none;
         box-shadow: 0 0 0 3px var(--primary-color);
+    }
+
+    /* レスポンシブ対応（スマホ・タブレット） */
+    @media screen and (max-width: 768px) {
+        body, .stApp {
+            padding: 0.5rem !important;
+        }
+
+        .title {
+            font-size: 1.5rem !important;
+        }
+
+        .st-expander > summary {
+            font-size: 1rem !important;
+        }
+
+        div.stButton > button, .stDownloadButton > button {
+            width: 100%;
+            font-size: 1rem !important;
+        }
+
+        textarea, input {
+            font-size: 1rem !important;
+        }
+
+        .result-container {
+            padding: 1rem !important;
+        }
     }
 
 </style>
