@@ -134,7 +134,11 @@ with st.expander("🍳 **条件を入力する**（食材・好み・予算）",
         budget = st.slider("1週間の予算（円）", 1000, 20000, 5000, step=500)
         submit = st.form_submit_button("献立を作成する")
 
-if submit:
+# --- 再生成ボタン ---
+regenerate = st.button("🎲 献立を再生成する")
+
+# --- 献立生成処理 ---
+if submit or regenerate:  
     with st.spinner("AIが献立を考え中...⏳"):
         prompt = f"""
         以下の条件に基づいて、1週間分（7日分×朝昼晩）の献立を作成してください。
@@ -178,7 +182,7 @@ if submit:
         [手順]
         1. 手順...
 
-        （〜日曜日まで同様に）
+        【火曜日】...【日曜日】まで必ず含めてください。
         """
         try:
             response = openai.chat.completions.create(
@@ -201,9 +205,9 @@ if "output" in st.session_state:
     st.success("献立が完成しました！🎉")
     tabs = st.tabs(["📅 献立", "🛒 買い物リスト", "📖 レシピ"])
     # 正規表現で各セクションを抽出
-    meal_match = re.search(r"\[献立\](.*?)\[買い物リスト\]", output, re.DOTALL)
-    shopping_match = re.search(r"\[買い物リスト\](.*?)\[レシピ\]", output, re.DOTALL)
-    recipe_match = re.search(r"\[レシピ\](.*)", output, re.DOTALL)
+    meal_match = re.search(r"\[献立\]([\s\S]*?)(?:\[買い物リスト\]|$)", output)
+    shopping_match = re.search(r"\[買い物リスト\]([\s\S]*?)\[レシピ\]", output)
+    recipe_match = re.search(r"\[レシピ\]([\s\S]*)", output)
 
     meal_plan_text = meal_match.group(1).strip() if meal_match else ""
     shopping_list_text = shopping_match.group(1).strip() if shopping_match else ""
@@ -222,28 +226,25 @@ if "output" in st.session_state:
     with tabs[2]:
         st.markdown("### 📖 レシピ")
         if recipe_text:
-            # 改善点: re.findall を使用して、すべての曜日とレシピのペアを抽出
-            # パターン: 【曜日名】の後に続く、次の【曜日名】か文字列の末尾までの内容
-            daily_recipes = re.findall(r"【(月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】\s*([\s\S]*?)(?=(?:【(?:月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】)|\Z)", recipe_text)
+            daily_recipes = re.findall(
+                r"【(月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】\s*([\s\S]*?)(?=(?:【(?:月曜日|火曜日|水曜日|木曜日|金曜日|土曜日|日曜日)】)|\Z)",
+                recipe_text
+            )
+            daily_recipes_dict = {day: content.strip() for day, content in daily_recipes}
 
-            daily_recipes_dict = {}
-            for day, content in daily_recipes:
-                daily_recipes_dict[day.strip()] = content.strip()
-
-            if daily_recipes_dict:
-                # 曜日の順序を固定する（オプション）
-                ordered_days = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"]
-                for day in ordered_days:
-                    if day in daily_recipes_dict:
-                        content = daily_recipes_dict[day]
-                        with st.expander(f"✨ **{day}のレシピ**"):
-                            st.markdown(content)
-                            st.download_button(
-                                f"📥 {day}のレシピをテキストで保存",
-                                content.encode("utf-8"),
-                                f"{day}_recipe.txt"
-                            )
-            else:
-                st.warning("レシピが見つかりませんでした。出力形式を確認してください。")
+            ordered_days = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"]
+            for day in ordered_days:
+                if day in daily_recipes_dict:
+                    content = daily_recipes_dict[day]
+                    with st.expander(f"✨ **{day}のレシピ**"):
+                        st.markdown(content)
+                        st.download_button(
+                            f"📥 {day}のレシピをテキストで保存",
+                            content.encode("utf-8"),
+                            f"{day}_recipe.txt"
+                        )
+                else:
+                    with st.expander(f"⚠️ **{day}のレシピ（未出力）**"):
+                        st.warning(f"{day}のレシピがAI出力に含まれていませんでした。再生成をお試しください。")
         else:
             st.warning("レシピが見つかりませんでした。")
