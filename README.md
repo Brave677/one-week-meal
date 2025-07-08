@@ -58,7 +58,7 @@
 
 ### 出力結果（例）
 <img width="1103" height="1386" alt="Image" src="https://github.com/user-attachments/assets/b8448e76-24aa-4c35-832f-344a0eeadf89" />
-
+<img width="1103" height="929" alt="Image" src="https://github.com/user-attachments/assets/71576b65-8c8e-4f30-8891-9aed7d8a583b" />
 ## 注意点
 - OpenAIのAPIキーが必要です（無料枠あり）
 - 個人情報は入力しないようご注意ください
