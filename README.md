@@ -60,6 +60,8 @@
 <img width="1103" height="1386" alt="Image" src="https://github.com/user-attachments/assets/b8448e76-24aa-4c35-832f-344a0eeadf89" />
 <img width="1103" height="929" alt="Image" src="https://github.com/user-attachments/assets/71576b65-8c8e-4f30-8891-9aed7d8a583b" />
 <img width="1101" height="845" alt="Image" src="https://github.com/user-attachments/assets/31307209-5d86-4183-be05-6ccd2745f6f1" />
+<img width="1102" height="1824" alt="Image" src="https://github.com/user-attachments/assets/81d4a53e-b6ee-43ed-940f-1a462fe8053d" />
+
 ## 注意点
 - OpenAIのAPIキーが必要です（無料枠あり）
 - 個人情報は入力しないようご注意ください
