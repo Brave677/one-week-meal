@@ -56,8 +56,8 @@
 |条件|卵や乳製品を使わない献立にして|
 <img width="1098" height="1114" alt="Image" src="https://github.com/user-attachments/assets/f64f205f-a5ac-4d8a-900b-fff79c8617cd" />
 
-
 ### 出力結果（例）
+<img width="1103" height="1386" alt="Image" src="https://github.com/user-attachments/assets/b8448e76-24aa-4c35-832f-344a0eeadf89" />
 
 ## 注意点
 - OpenAIのAPIキーが必要です（無料枠あり）
