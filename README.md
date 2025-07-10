@@ -68,7 +68,6 @@
 <img width="1102" height="1824" alt="Image" src="https://github.com/user-attachments/assets/81d4a53e-b6ee-43ed-940f-1a462fe8053d" />
 
 ## 注意点
-- OpenAIのAPIキーが必要です（無料枠あり）
 - 個人情報は入力しないようご注意ください
 - 商用利用を行う場合は、利用規約をご確認ください
 
